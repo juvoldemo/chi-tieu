@@ -14,7 +14,9 @@ interface TransactionFormProps {
 }
 
 const fieldClass =
-  'h-12 w-full rounded-2xl border border-white/70 bg-white/70 px-4 text-[15px] text-ink placeholder:text-ink/50 shadow-inner';
+  'h-12 w-full min-w-0 rounded-2xl border border-white/70 bg-white/70 px-4 text-[15px] text-ink placeholder:text-ink/50 shadow-inner';
+const dateFieldClass =
+  'h-12 w-full min-w-0 rounded-2xl border border-white/70 bg-white/70 px-3 text-center text-[14px] text-ink shadow-inner';
 
 const onlyDigits = (value: string) => value.replace(/\D/g, '');
 const formatAmountInput = (value: string | number) => {
@@ -93,7 +95,7 @@ export function TransactionForm({ categories, wallets, members, initial, onSubmi
         </label>
 
         <div className="grid grid-cols-2 gap-3">
-          <label className="block">
+          <label className="block min-w-0">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">Danh mục</span>
             <select className={fieldClass} required value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
               {visibleCategories.map((category) => (
@@ -103,7 +105,7 @@ export function TransactionForm({ categories, wallets, members, initial, onSubmi
               ))}
             </select>
           </label>
-          <label className="block">
+          <label className="block min-w-0">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">Ví tiền</span>
             <select className={fieldClass} required value={walletId} onChange={(event) => setWalletId(event.target.value)}>
               {wallets.map((wallet) => (
@@ -116,7 +118,7 @@ export function TransactionForm({ categories, wallets, members, initial, onSubmi
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <label className="block">
+          <label className="block min-w-0">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">Người</span>
             <select className={fieldClass} value={memberName} onChange={(event) => setMemberName(event.target.value)}>
               {members.map((member) => (
@@ -124,9 +126,9 @@ export function TransactionForm({ categories, wallets, members, initial, onSubmi
               ))}
             </select>
           </label>
-          <label className="block">
+          <label className="block min-w-0">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">Ngày</span>
-            <input className={fieldClass} type="date" required value={transactionDate} onChange={(event) => setTransactionDate(event.target.value)} />
+            <input className={dateFieldClass} type="date" required value={transactionDate} onChange={(event) => setTransactionDate(event.target.value)} />
           </label>
         </div>
 
