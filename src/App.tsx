@@ -53,19 +53,38 @@ export default function App() {
   };
 
   const handleSaveTransaction = async (input: Parameters<typeof data.addTransaction>[0]) => {
-    await data.addTransaction(input);
-    showToast('Đã lưu giao dịch');
-    setActiveTab('overview');
+    try {
+      await data.addTransaction(input);
+      const transactionMonth = input.transaction_date.slice(0, 7);
+      if (transactionMonth) {
+        handleSetSelectedMonth(transactionMonth);
+      }
+      showToast('Đã lưu giao dịch');
+      setActiveTab('overview');
+    } catch (err) {
+      console.error('Unable to save transaction', err);
+      showToast('Không lưu được giao dịch. Kiểm tra mạng/Supabase rồi thử lại.');
+    }
   };
 
   const handleUpdateTransaction = async (id: string, input: Parameters<typeof data.updateTransaction>[1]) => {
-    await data.updateTransaction(id, input);
-    showToast('Đã cập nhật giao dịch');
+    try {
+      await data.updateTransaction(id, input);
+      showToast('Đã cập nhật giao dịch');
+    } catch (err) {
+      console.error('Unable to update transaction', err);
+      showToast('Không cập nhật được giao dịch.');
+    }
   };
 
   const handleDeleteTransaction = async (id: string) => {
-    await data.deleteTransaction(id);
-    showToast('Đã xóa giao dịch');
+    try {
+      await data.deleteTransaction(id);
+      showToast('Đã xóa giao dịch');
+    } catch (err) {
+      console.error('Unable to delete transaction', err);
+      showToast('Không xóa được giao dịch.');
+    }
   };
 
   const handleSaveBudget = async (input: Parameters<typeof data.upsertBudget>[0]) => {

@@ -244,6 +244,40 @@ export function useFinanceData(selectedMonth = currentMonthKey()) {
     refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    const refreshWhenVisible = () => {
+      if (!document.hidden) {
+        void refresh();
+      }
+    };
+
+    window.addEventListener('focus', refreshWhenVisible);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+
+    return () => {
+      window.removeEventListener('focus', refreshWhenVisible);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
+  }, [refresh]);
+
+  useEffect(() => {
+    if (!hasSupabaseEnv || localMode) return;
+
+    const channel = supabase
+      .channel('finance-data-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+        void refresh();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'budgets' }, () => {
+        void refresh();
+      })
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [localMode, refresh]);
+
   const updateLocal = (updater: (data: LocalData) => LocalData) => {
     const next = updater(loadLocalData());
     saveLocalData(next);
