@@ -29,14 +29,14 @@ export function Budgets({ budgets, categories, transactions, onSave }: BudgetsPr
   return (
     <div className="page-enter space-y-4">
       <div>
-        <p className="text-sm text-ink/55">Kiểm soát</p>
+        <p className="text-sm font-medium text-ink/70">Kiểm soát</p>
         <h1 className="text-2xl font-semibold text-ink">Ngân sách</h1>
       </div>
 
       <GlassCard strong className="space-y-3 p-4">
         <div className="grid grid-cols-2 gap-3">
-          <input className="h-12 rounded-2xl border border-white/35 bg-white/45 px-4 text-sm text-ink" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
-          <select className="h-12 rounded-2xl border border-white/35 bg-white/45 px-4 text-sm text-ink" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+          <input className="h-12 rounded-2xl border border-white/70 bg-white/70 px-4 text-sm text-ink" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+          <select className="h-12 rounded-2xl border border-white/70 bg-white/70 px-4 text-sm text-ink" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
             {expenseCategories.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
@@ -45,7 +45,7 @@ export function Budgets({ budgets, categories, transactions, onSave }: BudgetsPr
           </select>
         </div>
         <input
-          className="h-12 w-full rounded-2xl border border-white/35 bg-white/45 px-4 text-sm text-ink"
+          className="h-12 w-full rounded-2xl border border-white/70 bg-white/70 px-4 text-sm text-ink"
           inputMode="numeric"
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
@@ -81,10 +81,10 @@ export function Budgets({ budgets, categories, transactions, onSave }: BudgetsPr
                       <p className="truncate font-semibold text-ink">{budget.categories?.name ?? 'Danh mục'}</p>
                       <p className="text-sm font-semibold text-ink/70">{percent}%</p>
                     </div>
-                    <p className="mt-1 text-xs text-ink/52">
+                    <p className="mt-1 text-xs font-medium text-ink/65">
                       {formatCurrency(spent)} / {formatCurrency(Number(budget.amount))}
                     </p>
-                    <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/42">
+                    <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/65">
                       <div className={`h-full rounded-full bg-gradient-to-r ${tone}`} style={{ width: `${Math.min(percent, 100)}%` }} />
                     </div>
                     {percent >= 80 && <p className={`mt-2 text-xs font-medium ${percent >= 100 ? 'text-rose-700' : 'text-amber-700'}`}>{percent >= 100 ? 'Đã vượt ngân sách' : 'Sắp chạm giới hạn 80%'}</p>}

@@ -57,11 +57,11 @@ export default function App() {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_18%_0%,rgba(255,255,255,.96),transparent_26%),radial-gradient(circle_at_88%_10%,rgba(255,215,94,.52),transparent_28%),radial-gradient(circle_at_20%_72%,rgba(255,186,73,.30),transparent_30%),linear-gradient(145deg,#fffdf3_0%,#fff4bd_34%,#ffd46b_70%,#fff8dc_100%)] text-ink">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,.86),transparent_24%),radial-gradient(circle_at_88%_12%,rgba(255,229,132,.70),transparent_25%),radial-gradient(circle_at_18%_74%,rgba(212,132,7,.28),transparent_30%),linear-gradient(145deg,#fff4bd_0%,#f6c64b_44%,#dda12a_74%,#fff0a8_100%)] text-ink">
       <div className="mx-auto min-h-screen max-w-md px-4 pb-[calc(env(safe-area-inset-bottom)+108px)] pt-[calc(env(safe-area-inset-top)+18px)]">
         <header className="mb-5 flex items-center justify-between">
           <div>
-            <p className="text-sm text-ink/50">Bé Bông</p>
+            <p className="text-sm font-medium text-ink/70">Bé Bông</p>
             <h1 className="text-[28px] font-semibold tracking-normal text-ink">{pageTitle[activeTab]}</h1>
           </div>
           <button
@@ -74,7 +74,7 @@ export default function App() {
         </header>
 
         {data.error && (
-          <div className="glass mb-4 rounded-3xl px-4 py-3 text-sm text-ink/70">
+          <div className="glass mb-4 rounded-3xl px-4 py-3 text-sm font-medium text-ink/78">
             {data.error}
           </div>
         )}
@@ -110,7 +110,7 @@ export default function App() {
 
       {activeTab !== 'entry' && (
         <button
-          className="fixed bottom-[calc(env(safe-area-inset-bottom)+88px)] right-5 z-30 grid h-16 w-16 place-items-center rounded-[26px] bg-gradient-to-br from-lagoon to-aqua text-white shadow-[0_18px_42px_rgba(216,150,20,.34)] transition active:scale-95"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+88px)] right-5 z-30 grid h-16 w-16 place-items-center rounded-[26px] bg-gradient-to-br from-lagoon to-aqua text-white shadow-[0_18px_42px_rgba(132,84,10,.40)] transition active:scale-95"
           onClick={() => setActiveTab('entry')}
           aria-label="Thêm giao dịch"
         >

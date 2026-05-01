@@ -4,8 +4,8 @@
   "description": "Quản lý thu chi cá nhân.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fff8dc",
-  "theme_color": "#fff4bd",
+  "background_color": "#f9cf55",
+  "theme_color": "#f5c242",
   "orientation": "portrait",
   "icons": [
     {

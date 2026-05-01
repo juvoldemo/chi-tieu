@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  color: #3f2c12;
-  background: #fff8dc;
+  color: #2f210d;
+  background: #f9cf55;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -42,19 +42,19 @@ textarea {
 }
 
 .glass {
-  border: 1px solid rgba(255, 248, 221, 0.58);
-  background: rgba(255, 255, 255, 0.26);
-  box-shadow: 0 18px 50px rgba(134, 92, 18, 0.14);
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 248, 218, 0.62);
+  box-shadow: 0 18px 50px rgba(112, 72, 12, 0.2);
+  backdrop-filter: blur(20px) saturate(145%);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
 }
 
 .glass-strong {
-  border: 1px solid rgba(255, 248, 221, 0.68);
-  background: rgba(255, 255, 255, 0.38);
-  box-shadow: 0 18px 55px rgba(134, 92, 18, 0.17);
-  backdrop-filter: blur(28px) saturate(165%);
-  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  background: rgba(255, 250, 232, 0.78);
+  box-shadow: 0 20px 58px rgba(112, 72, 12, 0.24);
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
 }
 
 .hide-scrollbar::-webkit-scrollbar {

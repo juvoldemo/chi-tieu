@@ -42,7 +42,7 @@ export function Menu({ categories, wallets, transactions, onAddCategory, onAddWa
   return (
     <div className="page-enter space-y-4">
       <div>
-        <p className="text-sm text-ink/55">Thiết lập</p>
+        <p className="text-sm font-medium text-ink/70">Thiết lập</p>
         <h1 className="text-2xl font-semibold text-ink">Menu</h1>
       </div>
 
@@ -56,14 +56,14 @@ export function Menu({ categories, wallets, transactions, onAddCategory, onAddWa
       <GlassCard className="space-y-3 p-4">
         <p className="font-semibold text-ink">Thêm danh mục</p>
         <div className="grid grid-cols-[1fr_112px] gap-2">
-          <input className="h-11 min-w-0 rounded-2xl border border-white/35 bg-white/45 px-3 text-sm text-ink" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} placeholder="Tên danh mục" />
-          <select className="h-11 rounded-2xl border border-white/35 bg-white/45 px-3 text-sm text-ink" value={categoryType} onChange={(event) => setCategoryType(event.target.value as 'expense' | 'income')}>
+          <input className="h-11 min-w-0 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} placeholder="Tên danh mục" />
+          <select className="h-11 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={categoryType} onChange={(event) => setCategoryType(event.target.value as 'expense' | 'income')}>
             <option value="expense">Chi</option>
             <option value="income">Thu</option>
           </select>
         </div>
         <button
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white/45 font-semibold text-lagoon transition active:scale-[0.98]"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white/70 font-semibold text-lagoon transition active:scale-[0.98]"
           disabled={!categoryName.trim()}
           onClick={async () => {
             await onAddCategory({ name: categoryName.trim(), type: categoryType, icon: 'CircleEllipsis', color: '#d89614' });
@@ -78,11 +78,11 @@ export function Menu({ categories, wallets, transactions, onAddCategory, onAddWa
       <GlassCard className="space-y-3 p-4">
         <p className="font-semibold text-ink">Thêm ví tiền</p>
         <div className="grid grid-cols-2 gap-2">
-          <input className="h-11 min-w-0 rounded-2xl border border-white/35 bg-white/45 px-3 text-sm text-ink" value={walletName} onChange={(event) => setWalletName(event.target.value)} placeholder="Tên ví" />
-          <input className="h-11 min-w-0 rounded-2xl border border-white/35 bg-white/45 px-3 text-sm text-ink" inputMode="numeric" value={walletBalance} onChange={(event) => setWalletBalance(event.target.value)} placeholder="Số dư" />
+          <input className="h-11 min-w-0 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={walletName} onChange={(event) => setWalletName(event.target.value)} placeholder="Tên ví" />
+          <input className="h-11 min-w-0 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" inputMode="numeric" value={walletBalance} onChange={(event) => setWalletBalance(event.target.value)} placeholder="Số dư" />
         </div>
         <button
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white/45 font-semibold text-lagoon transition active:scale-[0.98]"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white/70 font-semibold text-lagoon transition active:scale-[0.98]"
           disabled={!walletName.trim()}
           onClick={async () => {
             await onAddWallet({ name: walletName.trim(), balance: Number(walletBalance || 0) });
@@ -108,10 +108,10 @@ export function Menu({ categories, wallets, transactions, onAddCategory, onAddWa
 function MenuRow({ icon, title, subtitle }: { icon: ReactNode; title: string; subtitle: string }) {
   return (
     <div className="flex items-center gap-3 p-4">
-      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/45 text-lagoon">{icon}</span>
+      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/70 text-lagoon">{icon}</span>
       <div className="min-w-0 flex-1">
         <p className="font-semibold text-ink">{title}</p>
-        <p className="truncate text-sm text-ink/50">{subtitle}</p>
+        <p className="truncate text-sm font-medium text-ink/64">{subtitle}</p>
       </div>
     </div>
   );

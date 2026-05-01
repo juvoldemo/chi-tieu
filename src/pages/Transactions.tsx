@@ -57,7 +57,7 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
   return (
     <div className="page-enter space-y-4">
       <div>
-        <p className="text-sm text-ink/55">Lịch sử</p>
+        <p className="text-sm font-medium text-ink/70">Lịch sử</p>
         <h1 className="text-2xl font-semibold text-ink">Giao dịch</h1>
       </div>
 
@@ -73,19 +73,19 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
               key={key}
               type="button"
               onClick={() => setQuickFilter(key as QuickFilter)}
-              className={`h-10 shrink-0 rounded-2xl px-4 text-sm font-medium transition ${quickFilter === key ? 'bg-white/70 text-ink shadow-soft' : 'bg-white/25 text-ink/58'}`}
+              className={`h-10 shrink-0 rounded-2xl px-4 text-sm font-medium transition ${quickFilter === key ? 'bg-white/90 text-ink shadow-soft' : 'bg-white/48 text-ink/72'}`}
             >
               {label}
             </button>
           ))}
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <select className="h-11 rounded-2xl border border-white/35 bg-white/45 px-3 text-sm text-ink" value={member} onChange={(event) => setMember(event.target.value)}>
+          <select className="h-11 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={member} onChange={(event) => setMember(event.target.value)}>
             <option value="all">Tất cả người</option>
             <option value="Chồng">Chồng</option>
             <option value="Vợ">Vợ</option>
           </select>
-          <select className="h-11 rounded-2xl border border-white/35 bg-white/45 px-3 text-sm text-ink" value={category} onChange={(event) => setCategory(event.target.value)}>
+          <select className="h-11 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={category} onChange={(event) => setCategory(event.target.value)}>
             <option value="all">Tất cả danh mục</option>
             {categories.map((item) => (
               <option key={item.id} value={item.id}>
@@ -102,7 +102,7 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
         <div className="space-y-5">
           {Object.entries(grouped).map(([date, items]) => (
             <section key={date} className="space-y-2">
-              <div className="flex items-center gap-2 px-1 text-sm font-semibold text-ink/65">
+              <div className="flex items-center gap-2 px-1 text-sm font-semibold text-ink/76">
                 <CalendarDays size={16} />
                 <span>{formatDayLabel(date)}</span>
               </div>
@@ -118,7 +118,7 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
                           {formatCurrency(Number(item.amount))}
                         </p>
                       </div>
-                      <p className="mt-1 truncate text-xs text-ink/52">
+                      <p className="mt-1 truncate text-xs font-medium text-ink/65">
                         {item.member_name} · {item.wallets?.name ?? 'Ví'} {item.note ? `· ${item.note}` : ''}
                       </p>
                     </div>

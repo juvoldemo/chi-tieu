@@ -26,7 +26,7 @@ export function BottomNav({ activeTab, onChange }: BottomNavProps) {
               type="button"
               onClick={() => onChange(key)}
               className={`flex h-[58px] flex-col items-center justify-center gap-1 rounded-[22px] text-[11px] transition-all duration-200 ${
-                active ? 'bg-white/55 text-ink shadow-soft' : 'text-ink/55'
+                active ? 'bg-white/80 text-ink shadow-soft' : 'text-ink/68'
               }`}
               aria-label={label}
             >
