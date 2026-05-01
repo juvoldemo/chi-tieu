@@ -100,7 +100,7 @@ const normalizeData = (data: LocalData): LocalData => {
     wallets,
     transactions: transactions.map((transaction) => ({
       ...transaction,
-      wallet_id: transaction.wallet_id && walletIds.has(transaction.wallet_id) ? transaction.wallet_id : fallbackWalletId,
+      wallet_id: transaction.wallet_id && walletIds.has(transaction.wallet_id) ? transaction.wallet_id : transaction.type === 'expense' ? fallbackWalletId : null,
     })),
     budgets,
   };

@@ -4,7 +4,7 @@ import { GlassCard } from './GlassCard';
 export function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <GlassCard className="flex flex-col items-center px-5 py-8 text-center">
-      <div className="mb-3 rounded-3xl bg-white/75 p-4 text-lagoon">
+      <div className="mb-3 rounded-3xl bg-[#005BAA]/10 p-4 text-lagoon">
         <Inbox size={28} />
       </div>
       <h3 className="text-base font-semibold text-ink">{title}</h3>

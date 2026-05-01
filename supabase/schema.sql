@@ -17,7 +17,7 @@ create table if not exists public.categories (
   name text not null,
   type text not null check (type in ('income', 'expense')),
   icon text not null default 'CircleEllipsis',
-  color text not null default '#d89614',
+  color text not null default '#005BAA',
   created_at timestamptz not null default now()
 );
 

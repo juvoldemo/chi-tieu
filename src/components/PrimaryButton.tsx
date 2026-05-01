@@ -7,7 +7,7 @@ interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function PrimaryButton({ children, className = '', ...props }: PrimaryButtonProps) {
   return (
     <button
-      className={`min-h-12 rounded-2xl bg-gradient-to-r from-[#b77905] to-[#f5c242] px-5 font-semibold text-white shadow-soft transition active:scale-[0.98] disabled:opacity-60 ${className}`}
+      className={`min-h-12 rounded-2xl bg-gradient-to-r from-[#005BAA] to-[#00A3E0] px-5 font-semibold text-white shadow-soft transition active:scale-[0.98] disabled:opacity-60 ${className}`}
       {...props}
     >
       {children}

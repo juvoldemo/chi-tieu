@@ -6,7 +6,7 @@ interface CategoryIconProps {
   size?: number;
 }
 
-export function CategoryIcon({ icon = 'CircleEllipsis', color = '#d89614', size = 18 }: CategoryIconProps) {
+export function CategoryIcon({ icon = 'CircleEllipsis', color = '#005BAA', size = 18 }: CategoryIconProps) {
   const Icon = (Icons as unknown as Record<string, React.ComponentType<{ size?: number; strokeWidth?: number }>>)[icon] ?? Icons.CircleEllipsis;
 
   return (

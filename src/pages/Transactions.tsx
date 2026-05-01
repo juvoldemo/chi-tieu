@@ -70,14 +70,16 @@ export function Transactions({ transactions, categories, wallets, members, selec
               key={key}
               type="button"
               onClick={() => setQuickFilter(key as QuickFilter)}
-              className={`h-10 shrink-0 rounded-2xl px-4 text-sm font-medium transition ${quickFilter === key ? 'bg-white/90 text-ink shadow-soft' : 'bg-white/48 text-ink/72'}`}
+              className={`h-10 shrink-0 rounded-2xl px-4 text-sm font-medium transition ${
+                quickFilter === key ? 'control-active shadow-soft' : 'control-surface text-ink/72'
+              }`}
             >
               {label}
             </button>
           ))}
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <select className="h-11 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={member} onChange={(event) => setMember(event.target.value)}>
+          <select className="control-surface h-11 rounded-2xl px-3 text-sm text-ink" value={member} onChange={(event) => setMember(event.target.value)}>
             <option value="all">Tất cả người</option>
             {members.map((item) => (
               <option key={item} value={item}>
@@ -85,7 +87,7 @@ export function Transactions({ transactions, categories, wallets, members, selec
               </option>
             ))}
           </select>
-          <select className="h-11 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={category} onChange={(event) => setCategory(event.target.value)}>
+          <select className="control-surface h-11 rounded-2xl px-3 text-sm text-ink" value={category} onChange={(event) => setCategory(event.target.value)}>
             <option value="all">Tất cả danh mục</option>
             {categories.map((item) => (
               <option key={item.id} value={item.id}>
@@ -123,10 +125,10 @@ export function Transactions({ transactions, categories, wallets, members, selec
                       </p>
                     </div>
                     <div className="flex shrink-0 gap-1">
-                      <button className="grid h-9 w-9 place-items-center rounded-2xl bg-white/40 text-lagoon" onClick={() => setEditing(item)} aria-label="Sửa giao dịch">
+                      <button className="control-surface grid h-9 w-9 place-items-center rounded-2xl text-lagoon" onClick={() => setEditing(item)} aria-label="Sửa giao dịch">
                         <Pencil size={16} />
                       </button>
-                      <button className="grid h-9 w-9 place-items-center rounded-2xl bg-white/40 text-rose-600" onClick={() => handleDelete(item.id)} aria-label="Xóa giao dịch">
+                      <button className="control-surface grid h-9 w-9 place-items-center rounded-2xl text-rose-600" onClick={() => handleDelete(item.id)} aria-label="Xóa giao dịch">
                         <Trash2 size={16} />
                       </button>
                     </div>

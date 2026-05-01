@@ -3,7 +3,7 @@ import { CategoryIcon } from '../components/CategoryIcon';
 import { EmptyState } from '../components/EmptyState';
 import { GlassCard } from '../components/GlassCard';
 import { formatCurrency } from '../lib/format';
-import type { Category, Transaction } from '../types';
+import type { Anniversary, AnniversaryIcon, Category, Transaction } from '../types';
 
 interface OverviewProps {
   summary: {
@@ -16,11 +16,12 @@ interface OverviewProps {
   };
   categories: Category[];
   transactions: Transaction[];
+  anniversaries: Anniversary[];
   month: string;
 }
 
-export function Overview({ summary, categories, transactions, month }: OverviewProps) {
-  const nextSpecialDay = getNextSpecialDay();
+export function Overview({ summary, categories, transactions, anniversaries, month }: OverviewProps) {
+  const nextSpecialDay = getNextSpecialDay(anniversaries);
   const categoryTotals = categories
     .filter((category) => category.type === 'expense')
     .map((category) => ({
@@ -51,7 +52,7 @@ export function Overview({ summary, categories, transactions, month }: OverviewP
 
   return (
     <div className="page-enter space-y-4">
-      <SpecialDayCard event={nextSpecialDay} />
+      {nextSpecialDay && <SpecialDayCard event={nextSpecialDay} />}
 
       <div className="grid grid-cols-2 gap-3">
         <MetricCard title="Thu tháng này" value={formatCurrency(summary.income)} icon={<ArrowUpRight size={18} />} tone="text-emerald-700" />
@@ -64,7 +65,7 @@ export function Overview({ summary, categories, transactions, month }: OverviewP
             <p className="text-sm font-medium text-ink/72">Số dư còn lại</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-normal text-ink">{formatCurrency(summary.balance)}</h2>
           </div>
-          <div className="rounded-3xl bg-white/70 p-3 text-lagoon">
+          <div className="rounded-3xl bg-[#005BAA]/10 p-3 text-lagoon">
             <PiggyBank size={26} />
           </div>
         </div>
@@ -101,7 +102,7 @@ export function Overview({ summary, categories, transactions, month }: OverviewP
               <div key={item.key} className="flex min-w-0 flex-1 flex-col items-center gap-2">
                 <div className="flex h-28 w-full items-end rounded-2xl bg-white/45 p-1.5">
                   <div
-                    className="w-full rounded-xl bg-gradient-to-t from-lagoon to-aqua shadow-soft transition-all"
+                    className="w-full rounded-xl bg-gradient-to-t from-[#005BAA] to-[#00A3E0] shadow-soft transition-all"
                     style={{ height: `${height}%` }}
                     title={`${item.label}: ${formatCurrency(item.total)}`}
                   />
@@ -147,7 +148,7 @@ export function Overview({ summary, categories, transactions, month }: OverviewP
                     <span className="shrink-0 text-ink/70">{formatCurrency(total)}</span>
                   </div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/65">
-                    <div className="h-full rounded-full bg-gradient-to-r from-lagoon to-aqua" style={{ width: `${Math.max((total / maxTotal) * 100, 8)}%` }} />
+                    <div className="h-full rounded-full bg-gradient-to-r from-[#005BAA] to-[#00A3E0]" style={{ width: `${Math.max((total / maxTotal) * 100, 8)}%` }} />
                   </div>
                 </div>
               </div>
@@ -162,22 +163,15 @@ export function Overview({ summary, categories, transactions, month }: OverviewP
 interface SpecialDay {
   name: string;
   shortName: string;
-  icon: SpecialDayIcon;
+  icon: AnniversaryIcon;
   dateLabel: string;
   daysLeft: number;
   targetYear: number;
 }
 
-type SpecialDayIcon = 'birthday' | 'love' | 'wedding';
+function getNextSpecialDay(specialDays: Anniversary[]): SpecialDay | null {
+  if (!specialDays.length) return null;
 
-const specialDays = [
-  { name: 'Sinh nhật Bé Bông', shortName: 'Bé Bông', icon: 'birthday' as const, day: 10, month: 4 },
-  { name: 'Sinh nhật anh Dũ', shortName: 'Anh Dũ', icon: 'birthday' as const, day: 1, month: 7 },
-  { name: 'Kỷ niệm yêu nhau', shortName: 'Yêu nhau', icon: 'love' as const, day: 21, month: 8 },
-  { name: 'Kỷ niệm ngày cưới', shortName: 'Ngày cưới', icon: 'wedding' as const, day: 28, month: 9 },
-];
-
-function getNextSpecialDay(): SpecialDay {
   const today = startOfDay(new Date());
   const thisYear = today.getFullYear();
   const events = specialDays.map((event) => {
@@ -216,7 +210,7 @@ function SpecialDayCard({ event }: { event: SpecialDay }) {
   return (
     <GlassCard strong className="px-3.5 py-3">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[18px] bg-gradient-to-br from-[#fff8d8] to-[#f4bc24] text-[#9a6500] shadow-soft">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[18px] bg-gradient-to-br from-[#E8F5FC] to-[#00A3E0] text-[#005BAA] shadow-soft">
           <SpecialDayIcon icon={event.icon} />
         </div>
         <div className="min-w-0 flex-1">
@@ -225,7 +219,7 @@ function SpecialDayCard({ event }: { event: SpecialDay }) {
               <CalendarDays size={12} />
               {event.dateLabel}
             </span>
-            <span className="rounded-full bg-[#b77905]/10 px-2.5 py-1 text-[11px] font-semibold leading-none text-[#8a5a00]">{event.targetYear}</span>
+            <span className="rounded-full bg-[#005BAA]/10 px-2.5 py-1 text-[11px] font-semibold leading-none text-[#005BAA]">{event.targetYear}</span>
           </div>
           <p className="line-clamp-2 text-[15px] font-semibold leading-snug text-ink">{isToday ? `Hôm nay là ${event.name}` : event.name}</p>
         </div>
@@ -244,7 +238,7 @@ function SpecialDayCard({ event }: { event: SpecialDay }) {
   );
 }
 
-function SpecialDayIcon({ icon }: { icon: SpecialDayIcon }) {
+function SpecialDayIcon({ icon }: { icon: AnniversaryIcon }) {
   if (icon === 'birthday') {
     return <Cake size={20} strokeWidth={2} />;
   }

@@ -10,8 +10,15 @@ import { Entry } from './pages/Entry';
 import { Menu } from './pages/Menu';
 import { Overview } from './pages/Overview';
 import { Transactions } from './pages/Transactions';
-import type { TabKey } from './types';
+import type { Anniversary, TabKey } from './types';
 import { currentMonthKey } from './lib/format';
+
+const defaultAnniversaries: Anniversary[] = [
+  { id: 'birthday-be-bong', name: 'Sinh nhật Bé Bông', shortName: 'Bé Bông', icon: 'birthday', day: 10, month: 4 },
+  { id: 'birthday-anh-du', name: 'Sinh nhật anh Dũ', shortName: 'Anh Dũ', icon: 'birthday', day: 1, month: 7 },
+  { id: 'love-anniversary', name: 'Kỷ niệm yêu nhau', shortName: 'Yêu nhau', icon: 'love', day: 21, month: 8 },
+  { id: 'wedding-anniversary', name: 'Kỷ niệm ngày cưới', shortName: 'Ngày cưới', icon: 'wedding', day: 28, month: 9 },
+];
 
 const loadList = (key: string, fallback: string[]) => {
   try {
@@ -23,10 +30,22 @@ const loadList = (key: string, fallback: string[]) => {
   }
 };
 
+const loadAnniversaries = () => {
+  try {
+    const raw = window.localStorage.getItem('be-bong-anniversaries');
+    if (!raw) return defaultAnniversaries;
+    const parsed = JSON.parse(raw) as Anniversary[];
+    return Array.isArray(parsed) ? parsed : defaultAnniversaries;
+  } catch {
+    return defaultAnniversaries;
+  }
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [selectedMonth, setSelectedMonth] = useState(() => window.localStorage.getItem('be-bong-current-month') || currentMonthKey());
   const [members, setMembers] = useState(() => loadList('be-bong-members', ['Chồng', 'Vợ']));
+  const [anniversaries, setAnniversaries] = useState(loadAnniversaries);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const { toast, showToast } = useToast();
@@ -42,6 +61,11 @@ export default function App() {
     const finalMembers = cleanMembers.length ? cleanMembers : ['Chồng', 'Vợ'];
     setMembers(finalMembers);
     window.localStorage.setItem('be-bong-members', JSON.stringify(finalMembers));
+  };
+
+  const handleSetAnniversaries = (nextAnniversaries: Anniversary[]) => {
+    setAnniversaries(nextAnniversaries);
+    window.localStorage.setItem('be-bong-anniversaries', JSON.stringify(nextAnniversaries));
   };
 
   const pageTitle: Record<TabKey, string> = {
@@ -115,7 +139,7 @@ export default function App() {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_88%_14%,rgba(255,229,132,.46),transparent_28%),radial-gradient(circle_at_18%_74%,rgba(180,108,0,.24),transparent_30%),linear-gradient(180deg,#f5c242_0%,#f5c242_8%,#f6cf5b_30%,#dda12a_74%,#f4c849_100%)] text-ink">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_88%_10%,rgba(0,163,224,.22),transparent_28%),radial-gradient(circle_at_14%_78%,rgba(0,91,170,.13),transparent_30%),linear-gradient(180deg,#F9F9FB_0%,#F2F2F7_42%,#E5E5EA_100%)] text-ink">
       <div className="mx-auto min-h-screen max-w-md px-4 pb-[calc(env(safe-area-inset-bottom)+108px)] pt-[calc(env(safe-area-inset-top)+18px)]">
         <header className="mb-5 flex items-center justify-between">
           <div>
@@ -144,7 +168,7 @@ export default function App() {
           <LoadingCards />
         ) : (
           <>
-            {activeTab === 'overview' && <Overview summary={data.summary} categories={data.categories} transactions={data.transactions} month={selectedMonth} />}
+            {activeTab === 'overview' && <Overview summary={data.summary} categories={data.categories} transactions={data.transactions} anniversaries={anniversaries} month={selectedMonth} />}
             {activeTab === 'entry' && <Entry categories={data.categories} wallets={data.wallets} members={members} onSave={handleSaveTransaction} />}
             {activeTab === 'transactions' && (
               <Transactions
@@ -160,18 +184,17 @@ export default function App() {
             {activeTab === 'budgets' && <Budgets budgets={data.budgets} categories={data.categories} transactions={data.transactions} selectedMonth={selectedMonth} onSave={handleSaveBudget} />}
             {activeTab === 'menu' && (
               <Menu
-                categories={data.categories}
                 wallets={data.wallets}
                 transactions={data.transactions}
                 members={members}
+                anniversaries={anniversaries}
                 selectedMonth={selectedMonth}
                 onMembersChange={handleSetMembers}
+                onAnniversariesChange={handleSetAnniversaries}
                 onMonthChange={handleSetSelectedMonth}
                 onAddCategory={handleAddCategory}
                 onAddWallet={handleAddWallet}
-                onResetCategories={data.resetCategories}
                 onDeleteWallet={data.deleteWallet}
-                onRefresh={data.refresh}
                 onOpenReset={() => setResetOpen(true)}
               />
             )}

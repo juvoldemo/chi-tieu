@@ -15,6 +15,12 @@ interface BudgetsProps {
   onSave: (input: BudgetInput) => Promise<void>;
 }
 
+const onlyDigits = (value: string) => value.replace(/\D/g, '');
+const formatAmountInput = (value: string | number) => {
+  const digits = onlyDigits(String(value));
+  return digits ? Number(digits).toLocaleString('en-US') : '';
+};
+
 export function Budgets({ budgets, categories, transactions, selectedMonth, onSave }: BudgetsProps) {
   const [month, setMonth] = useState(selectedMonth || currentMonthKey());
   const expenseCategories = categories.filter((item) => item.type === 'expense');
@@ -35,8 +41,8 @@ export function Budgets({ budgets, categories, transactions, selectedMonth, onSa
     <div className="page-enter space-y-4">
       <GlassCard strong className="space-y-3 p-4">
         <div className="grid grid-cols-2 gap-3">
-          <input className="h-12 rounded-2xl border border-white/70 bg-white/70 px-4 text-sm text-ink" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
-          <select className="h-12 rounded-2xl border border-white/70 bg-white/70 px-4 text-sm text-ink" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+          <input className="control-surface h-12 rounded-2xl px-4 text-sm text-ink" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+          <select className="control-surface h-12 rounded-2xl px-4 text-sm text-ink" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
             {expenseCategories.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
@@ -45,17 +51,17 @@ export function Budgets({ budgets, categories, transactions, selectedMonth, onSa
           </select>
         </div>
         <input
-          className="h-12 w-full rounded-2xl border border-white/70 bg-white/70 px-4 text-sm text-ink"
+          className="control-surface h-12 w-full rounded-2xl px-4 text-sm text-ink"
           inputMode="numeric"
           value={amount}
-          onChange={(event) => setAmount(event.target.value)}
+          onChange={(event) => setAmount(formatAmountInput(event.target.value))}
           placeholder="Số tiền ngân sách"
         />
         <PrimaryButton
           className="flex w-full items-center justify-center gap-2"
-          disabled={!categoryId || !amount}
+          disabled={!categoryId || !onlyDigits(amount)}
           onClick={async () => {
-            await onSave({ category_id: categoryId, month, amount: Number(amount) });
+            await onSave({ category_id: categoryId, month, amount: Number(onlyDigits(amount)) });
             setAmount('');
           }}
         >
@@ -71,7 +77,7 @@ export function Budgets({ budgets, categories, transactions, selectedMonth, onSa
           {visibleBudgets.map((budget) => {
             const spent = spentFor(budget.category_id);
             const percent = budget.amount > 0 ? Math.round((spent / Number(budget.amount)) * 100) : 0;
-            const tone = percent >= 100 ? 'from-rose-500 to-orange-400' : percent >= 80 ? 'from-amber-400 to-orange-300' : 'from-lagoon to-aqua';
+            const tone = percent >= 100 ? 'from-rose-500 to-[#FF3B30]' : percent >= 80 ? 'from-[#FF9500] to-[#FFCC00]' : 'from-[#005BAA] to-[#00A3E0]';
             return (
               <GlassCard key={budget.id} className="p-4">
                 <div className="flex items-center gap-3">

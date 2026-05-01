@@ -1,5 +1,15 @@
 export type TransactionType = 'income' | 'expense';
 export type MemberName = string;
+export type AnniversaryIcon = 'birthday' | 'love' | 'wedding';
+
+export interface Anniversary {
+  id: string;
+  name: string;
+  shortName: string;
+  icon: AnniversaryIcon;
+  day: number;
+  month: number;
+}
 
 export interface Profile {
   id: string;
@@ -55,7 +65,7 @@ export interface TransactionInput {
   type: TransactionType;
   amount: number;
   category_id: string;
-  wallet_id: string;
+  wallet_id: string | null;
   member_name: MemberName;
   note: string;
   transaction_date: string;

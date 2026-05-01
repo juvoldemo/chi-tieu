@@ -28,7 +28,7 @@ export function BottomNav({ activeTab, onChange }: BottomNavProps) {
               onClick={() => onChange(key)}
               className={
                 isEntry
-                  ? `mx-auto grid h-[54px] w-[54px] place-items-center rounded-[24px] bg-gradient-to-br from-[#b77905] to-[#f5c242] text-white shadow-[0_10px_26px_rgba(132,84,10,.30)] transition-all duration-200 active:scale-95 ${
+                  ? `mx-auto grid h-[54px] w-[54px] place-items-center rounded-[24px] bg-gradient-to-br from-[#005BAA] to-[#00A3E0] text-white shadow-[0_10px_26px_rgba(0,91,170,.30)] transition-all duration-200 active:scale-95 ${
                       active ? 'scale-105 ring-4 ring-white/45' : ''
                     }`
                   : `flex h-[58px] flex-col items-center justify-center gap-1 rounded-[22px] text-[11px] transition-all duration-200 ${
