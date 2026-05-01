@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, Plus, X } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { GlassCard } from './components/GlassCard';
 import { Toast } from './components/Toast';
@@ -159,16 +159,6 @@ export default function App() {
           </>
         )}
       </div>
-
-      {activeTab !== 'entry' && (
-        <button
-          className="fixed bottom-[calc(env(safe-area-inset-bottom)+88px)] right-5 z-30 grid h-16 w-16 place-items-center rounded-[26px] bg-gradient-to-br from-lagoon to-aqua text-white shadow-[0_18px_42px_rgba(132,84,10,.40)] transition active:scale-95"
-          onClick={() => setActiveTab('entry')}
-          aria-label="Thêm giao dịch"
-        >
-          <Plus size={30} />
-        </button>
-      )}
 
       <BottomNav activeTab={activeTab} onChange={setActiveTab} />
       <Toast toast={toast} />
