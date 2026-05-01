@@ -15,13 +15,17 @@ interface TransactionFormProps {
 
 const fieldClass =
   'h-12 w-full min-w-0 rounded-2xl border border-white/70 bg-white/70 px-4 text-[15px] text-ink placeholder:text-ink/50 shadow-inner';
-const dateFieldClass =
-  'h-12 w-full min-w-0 rounded-2xl border border-white/70 bg-white/70 px-3 text-center text-[14px] text-ink shadow-inner';
+const dateDisplayClass =
+  'flex h-12 w-full min-w-0 items-center justify-center rounded-2xl border border-white/70 bg-white/70 px-3 text-center text-[15px] font-medium text-ink shadow-inner';
 
 const onlyDigits = (value: string) => value.replace(/\D/g, '');
 const formatAmountInput = (value: string | number) => {
   const digits = onlyDigits(String(value));
   return digits ? Number(digits).toLocaleString('en-US') : '';
+};
+const formatDateInput = (value: string) => {
+  const [year, month, day] = value.split('-');
+  return day && month && year ? `${day}/${month}/${year}` : '';
 };
 
 export function TransactionForm({ categories, wallets, members, initial, onSubmit }: TransactionFormProps) {
@@ -128,7 +132,17 @@ export function TransactionForm({ categories, wallets, members, initial, onSubmi
           </label>
           <label className="block min-w-0">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">Ngày</span>
-            <input className={dateFieldClass} type="date" required value={transactionDate} onChange={(event) => setTransactionDate(event.target.value)} />
+            <span className="relative block min-w-0">
+              <span className={dateDisplayClass}>{formatDateInput(transactionDate)}</span>
+              <input
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                type="date"
+                required
+                value={transactionDate}
+                aria-label="Ngày"
+                onChange={(event) => setTransactionDate(event.target.value)}
+              />
+            </span>
           </label>
         </div>
 
