@@ -19,8 +19,13 @@
 html,
 body,
 #root {
+  width: 100%;
   min-height: 100%;
   background: #f2f2f7;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
