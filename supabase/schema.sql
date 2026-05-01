@@ -36,7 +36,7 @@ create table if not exists public.transactions (
   amount numeric not null check (amount >= 0),
   category_id uuid references public.categories(id) on delete set null,
   wallet_id uuid references public.wallets(id) on delete set null,
-  member_name text not null check (member_name in ('Chồng', 'Vợ')),
+  member_name text not null,
   note text,
   transaction_date date not null default current_date,
   created_at timestamptz not null default now()
