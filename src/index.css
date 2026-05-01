@@ -4,7 +4,7 @@
 
 :root {
   color: #2f210d;
-  background: #f9cf55;
+  background: #f5c242;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -20,6 +20,7 @@ html,
 body,
 #root {
   min-height: 100%;
+  background: #f5c242;
 }
 
 body {

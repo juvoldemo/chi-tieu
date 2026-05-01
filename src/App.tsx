@@ -57,7 +57,7 @@ export default function App() {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,.86),transparent_24%),radial-gradient(circle_at_88%_12%,rgba(255,229,132,.70),transparent_25%),radial-gradient(circle_at_18%_74%,rgba(212,132,7,.28),transparent_30%),linear-gradient(145deg,#fff4bd_0%,#f6c64b_44%,#dda12a_74%,#fff0a8_100%)] text-ink">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_88%_14%,rgba(255,229,132,.46),transparent_28%),radial-gradient(circle_at_18%_74%,rgba(180,108,0,.24),transparent_30%),linear-gradient(180deg,#f5c242_0%,#f5c242_8%,#f6cf5b_30%,#dda12a_74%,#f4c849_100%)] text-ink">
       <div className="mx-auto min-h-screen max-w-md px-4 pb-[calc(env(safe-area-inset-bottom)+108px)] pt-[calc(env(safe-area-inset-top)+18px)]">
         <header className="mb-5 flex items-center justify-between">
           <div>
