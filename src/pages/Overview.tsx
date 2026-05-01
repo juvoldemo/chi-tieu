@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, PiggyBank, TrendingUp } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, BarChart3, PiggyBank, TrendingUp } from 'lucide-react';
 import { CategoryIcon } from '../components/CategoryIcon';
 import { EmptyState } from '../components/EmptyState';
 import { GlassCard } from '../components/GlassCard';
@@ -16,10 +16,10 @@ interface OverviewProps {
   };
   categories: Category[];
   transactions: Transaction[];
+  month: string;
 }
 
-export function Overview({ summary, categories, transactions }: OverviewProps) {
-  const month = new Date().toISOString().slice(0, 7);
+export function Overview({ summary, categories, transactions, month }: OverviewProps) {
   const categoryTotals = categories
     .filter((category) => category.type === 'expense')
     .map((category) => ({
@@ -31,11 +31,27 @@ export function Overview({ summary, categories, transactions }: OverviewProps) {
     .filter((item) => item.total > 0)
     .sort((a, b) => b.total - a.total);
   const maxTotal = Math.max(...categoryTotals.map((item) => item.total), 1);
+  const dailyExpenses = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - index));
+    const key = date.toISOString().slice(0, 10);
+    const total = transactions
+      .filter((item) => item.type === 'expense' && item.transaction_date === key)
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+
+    return {
+      key,
+      label: new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit' }).format(date),
+      day: index === 6 ? 'Hôm nay' : new Intl.DateTimeFormat('vi-VN', { weekday: 'short' }).format(date),
+      total,
+    };
+  });
+  const maxDailyExpense = Math.max(...dailyExpenses.map((item) => item.total), 1);
 
   return (
     <div className="page-enter space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <MetricCard title="Thu tháng này" value={formatCurrency(summary.income)} icon={<ArrowUpRight size={18} />} tone="text-emerald-700" imageSrc="/couple-photo.jpg" />
+        <MetricCard title="Thu tháng này" value={formatCurrency(summary.income)} icon={<ArrowUpRight size={18} />} tone="text-emerald-700" />
         <MetricCard title="Chi tháng này" value={formatCurrency(summary.expense)} icon={<ArrowDownRight size={18} />} tone="text-rose-600" />
       </div>
 
@@ -45,7 +61,7 @@ export function Overview({ summary, categories, transactions }: OverviewProps) {
             <p className="text-sm font-medium text-ink/72">Số dư còn lại</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-normal text-ink">{formatCurrency(summary.balance)}</h2>
           </div>
-          <div className="rounded-3xl bg-white/55 p-3 text-lagoon">
+          <div className="rounded-3xl bg-white/70 p-3 text-lagoon">
             <PiggyBank size={26} />
           </div>
         </div>
@@ -66,6 +82,46 @@ export function Overview({ summary, categories, transactions }: OverviewProps) {
           <p className="mt-1 text-xs font-medium text-ink/62">{summary.biggerSpender ? formatCurrency(summary.biggerSpender.amount) : 'Tháng này'}</p>
         </GlassCard>
       </div>
+
+      <GlassCard className="p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-ink">Chi tiêu 7 ngày</p>
+            <p className="text-xs font-medium text-ink/62">Tổng tiền chi theo từng ngày</p>
+          </div>
+          <BarChart3 size={20} className="text-lagoon" />
+        </div>
+        <div className="flex h-44 items-end gap-2">
+          {dailyExpenses.map((item) => {
+            const height = item.total > 0 ? Math.max((item.total / maxDailyExpense) * 100, 10) : 4;
+            return (
+              <div key={item.key} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+                <div className="flex h-28 w-full items-end rounded-2xl bg-white/45 p-1.5">
+                  <div
+                    className="w-full rounded-xl bg-gradient-to-t from-lagoon to-aqua shadow-soft transition-all"
+                    style={{ height: `${height}%` }}
+                    title={`${item.label}: ${formatCurrency(item.total)}`}
+                  />
+                </div>
+                <div className="min-h-10 text-center">
+                  <p className="text-[11px] font-semibold leading-4 text-ink">{item.day}</p>
+                  <p className="text-[10px] font-medium leading-4 text-ink/60">{item.label}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="rounded-2xl bg-white/55 px-3 py-2">
+            <p className="text-xs font-medium text-ink/62">Cao nhất</p>
+            <p className="text-sm font-bold text-ink">{formatCurrency(maxDailyExpense === 1 ? 0 : maxDailyExpense)}</p>
+          </div>
+          <div className="rounded-2xl bg-white/55 px-3 py-2">
+            <p className="text-xs font-medium text-ink/62">7 ngày</p>
+            <p className="text-sm font-bold text-ink">{formatCurrency(dailyExpenses.reduce((sum, item) => sum + item.total, 0))}</p>
+          </div>
+        </div>
+      </GlassCard>
 
       <GlassCard className="p-5">
         <div className="mb-4 flex items-center justify-between">
@@ -100,27 +156,13 @@ export function Overview({ summary, categories, transactions }: OverviewProps) {
   );
 }
 
-function MetricCard({ title, value, icon, tone, imageSrc }: { title: string; value: string; icon: React.ReactNode; tone: string; imageSrc?: string }) {
+function MetricCard({ title, value, icon, tone }: { title: string; value: string; icon: React.ReactNode; tone: string }) {
   return (
-    <GlassCard className="relative overflow-hidden p-4">
-      {imageSrc && (
-        <>
-          <img
-            src={imageSrc}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full scale-105 object-cover opacity-[0.48] saturate-[1.08] contrast-[1.04]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-[#fff8dc]/42 via-[#fff1b8]/24 to-[#d89614]/10" />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#fff8dc]/72 to-transparent" />
-        </>
-      )}
-      <div className="relative z-10">
+    <GlassCard className="p-4">
+      <div>
         <div className={`mb-3 inline-grid h-9 w-9 place-items-center rounded-2xl bg-white/75 ${tone}`}>{icon}</div>
-        <div className={imageSrc ? 'inline-block rounded-2xl bg-white/58 px-2.5 py-1 backdrop-blur-[2px]' : ''}>
-          <p className="text-sm font-semibold text-ink/82">{title}</p>
-          <p className="mt-1 text-lg font-bold text-ink">{value}</p>
-        </div>
+        <p className="text-sm font-semibold text-ink/82">{title}</p>
+        <p className="mt-1 text-lg font-bold text-ink">{value}</p>
       </div>
     </GlassCard>
   );

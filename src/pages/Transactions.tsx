@@ -12,13 +12,15 @@ interface TransactionsProps {
   transactions: Transaction[];
   categories: Category[];
   wallets: Wallet[];
+  members: string[];
+  selectedMonth: string;
   onUpdate: (id: string, input: TransactionInput) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
 type QuickFilter = 'today' | 'week' | 'month' | 'all';
 
-export function Transactions({ transactions, categories, wallets, onUpdate, onDelete }: TransactionsProps) {
+export function Transactions({ transactions, categories, wallets, members, selectedMonth, onUpdate, onDelete }: TransactionsProps) {
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('month');
   const [member, setMember] = useState('all');
   const [category, setCategory] = useState('all');
@@ -29,7 +31,7 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
     const today = now.toISOString().slice(0, 10);
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() - 6);
-    const month = today.slice(0, 7);
+    const month = selectedMonth;
 
     return transactions.filter((item) => {
       const date = new Date(item.transaction_date);
@@ -42,7 +44,7 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
       const byCategory = category === 'all' || item.category_id === category;
       return byQuick && byMember && byCategory;
     });
-  }, [category, member, quickFilter, transactions]);
+  }, [category, member, quickFilter, selectedMonth, transactions]);
 
   const grouped = filtered.reduce<Record<string, Transaction[]>>((acc, item) => {
     acc[item.transaction_date] = [...(acc[item.transaction_date] ?? []), item];
@@ -56,11 +58,6 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
 
   return (
     <div className="page-enter space-y-4">
-      <div>
-        <p className="text-sm font-medium text-ink/70">Lịch sử</p>
-        <h1 className="text-2xl font-semibold text-ink">Giao dịch</h1>
-      </div>
-
       <GlassCard className="space-y-3 p-3">
         <div className="hide-scrollbar flex gap-2 overflow-x-auto">
           {[
@@ -82,8 +79,11 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
         <div className="grid grid-cols-2 gap-2">
           <select className="h-11 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={member} onChange={(event) => setMember(event.target.value)}>
             <option value="all">Tất cả người</option>
-            <option value="Chồng">Chồng</option>
-            <option value="Vợ">Vợ</option>
+            {members.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
           </select>
           <select className="h-11 rounded-2xl border border-white/70 bg-white/70 px-3 text-sm text-ink" value={category} onChange={(event) => setCategory(event.target.value)}>
             <option value="all">Tất cả danh mục</option>
@@ -150,6 +150,7 @@ export function Transactions({ transactions, categories, wallets, onUpdate, onDe
               categories={categories}
               wallets={wallets}
               initial={editing}
+              members={members}
               onSubmit={async (input) => {
                 await onUpdate(editing.id, input);
                 setEditing(null);

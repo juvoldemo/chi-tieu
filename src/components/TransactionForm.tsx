@@ -8,6 +8,7 @@ import { PrimaryButton } from './PrimaryButton';
 interface TransactionFormProps {
   categories: Category[];
   wallets: Wallet[];
+  members: string[];
   initial?: Transaction | null;
   onSubmit: (input: TransactionInput) => Promise<void>;
 }
@@ -15,21 +16,26 @@ interface TransactionFormProps {
 const fieldClass =
   'h-12 w-full rounded-2xl border border-white/70 bg-white/70 px-4 text-[15px] text-ink placeholder:text-ink/50 shadow-inner';
 
-export function TransactionForm({ categories, wallets, initial, onSubmit }: TransactionFormProps) {
+const onlyDigits = (value: string) => value.replace(/\D/g, '');
+const formatAmountInput = (value: string | number) => {
+  const digits = onlyDigits(String(value));
+  return digits ? Number(digits).toLocaleString('en-US') : '';
+};
+
+export function TransactionForm({ categories, wallets, members, initial, onSubmit }: TransactionFormProps) {
   const [type, setType] = useState<TransactionType>(initial?.type ?? 'expense');
-  const visibleCategories = useMemo(() => categories.filter((item) => item.type === type), [categories, type]);
-  const [amount, setAmount] = useState(initial?.amount ? String(initial.amount) : '');
+  const visibleCategories = useMemo(() => categories, [categories]);
+  const [amount, setAmount] = useState(initial?.amount ? formatAmountInput(initial.amount) : '');
   const [categoryId, setCategoryId] = useState(initial?.category_id ?? visibleCategories[0]?.id ?? '');
   const [walletId, setWalletId] = useState(initial?.wallet_id ?? wallets[0]?.id ?? '');
-  const [memberName, setMemberName] = useState<'Chồng' | 'Vợ'>(initial?.member_name ?? 'Chồng');
+  const [memberName, setMemberName] = useState(initial?.member_name ?? members[0] ?? 'Chồng');
   const [transactionDate, setTransactionDate] = useState(initial?.transaction_date ?? todayKey());
   const [note, setNote] = useState(initial?.note ?? '');
   const [saving, setSaving] = useState(false);
 
   const handleTypeChange = (nextType: TransactionType) => {
     setType(nextType);
-    const nextCategory = categories.find((item) => item.type === nextType);
-    setCategoryId(nextCategory?.id ?? '');
+    setCategoryId(categories[0]?.id ?? '');
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -38,7 +44,7 @@ export function TransactionForm({ categories, wallets, initial, onSubmit }: Tran
     try {
       await onSubmit({
         type,
-        amount: Number(amount),
+        amount: Number(onlyDigits(amount)),
         category_id: categoryId,
         wallet_id: walletId,
         member_name: memberName,
@@ -75,7 +81,15 @@ export function TransactionForm({ categories, wallets, initial, onSubmit }: Tran
 
         <label className="block">
           <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">Số tiền</span>
-          <input className={fieldClass} inputMode="numeric" min="0" required value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0 ₫" />
+          <input
+            className={fieldClass}
+            inputMode="numeric"
+            min="0"
+            required
+            value={amount}
+            onChange={(event) => setAmount(formatAmountInput(event.target.value))}
+            placeholder="0 ₫"
+          />
         </label>
 
         <div className="grid grid-cols-2 gap-3">
@@ -104,9 +118,10 @@ export function TransactionForm({ categories, wallets, initial, onSubmit }: Tran
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">Người</span>
-            <select className={fieldClass} value={memberName} onChange={(event) => setMemberName(event.target.value as 'Chồng' | 'Vợ')}>
-              <option>Chồng</option>
-              <option>Vợ</option>
+            <select className={fieldClass} value={memberName} onChange={(event) => setMemberName(event.target.value)}>
+              {members.map((member) => (
+                <option key={member}>{member}</option>
+              ))}
             </select>
           </label>
           <label className="block">
@@ -120,7 +135,7 @@ export function TransactionForm({ categories, wallets, initial, onSubmit }: Tran
           <textarea className={`${fieldClass} h-24 resize-none py-3`} value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ví dụ: bữa tối, siêu thị..." />
         </label>
 
-        <PrimaryButton type="submit" disabled={saving || !amount || !categoryId || !walletId} className="flex w-full items-center justify-center gap-2">
+        <PrimaryButton type="submit" disabled={saving || !onlyDigits(amount) || !categoryId || !walletId} className="flex w-full items-center justify-center gap-2">
           <Save size={18} />
           {saving ? 'Đang lưu...' : initial ? 'Cập nhật giao dịch' : 'Lưu giao dịch'}
         </PrimaryButton>

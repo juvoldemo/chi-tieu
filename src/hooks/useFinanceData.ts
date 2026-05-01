@@ -36,18 +36,88 @@ const createDefaultLocalData = (): LocalData => ({
   budgets: [],
 });
 
+const allowedCategoryNames = defaultCategories.map((item) => item.name);
+const normalizeCategoryName = (value: string) => value.trim().toLocaleLowerCase('vi-VN');
+const normalizeWalletName = (value: string) => value.trim().toLocaleLowerCase('vi-VN');
+
+const normalizeData = (data: LocalData): LocalData => {
+  const existingByName = new Map<string, Category>();
+  data.categories.forEach((category) => {
+    const key = normalizeCategoryName(category.name);
+    if (allowedCategoryNames.some((name) => normalizeCategoryName(name) === key) && !existingByName.has(key)) {
+      existingByName.set(key, category);
+    }
+  });
+
+  const categories = defaultCategories.map((defaultCategory) => {
+    const existing = existingByName.get(normalizeCategoryName(defaultCategory.name));
+    return {
+      ...defaultCategory,
+      id: existing?.id ?? `cat-${slug(defaultCategory.name)}`,
+      created_at: existing?.created_at ?? new Date().toISOString(),
+    };
+  });
+
+  const canonicalByName = new Map(categories.map((category) => [normalizeCategoryName(category.name), category]));
+  const oldIdToNewId = new Map<string, string>();
+  data.categories.forEach((category) => {
+    const canonical = canonicalByName.get(normalizeCategoryName(category.name));
+    if (canonical) oldIdToNewId.set(category.id, canonical.id);
+  });
+
+  const fallbackCategoryId = categories[0]?.id ?? null;
+  const transactions = data.transactions.map((transaction) => ({
+    ...transaction,
+    category_id: (transaction.category_id && oldIdToNewId.get(transaction.category_id)) || fallbackCategoryId,
+  }));
+
+  const budgetKeys = new Set<string>();
+  const budgets = data.budgets
+    .map((budget) => ({
+      ...budget,
+      category_id: oldIdToNewId.get(budget.category_id) ?? budget.category_id,
+    }))
+    .filter((budget) => categories.some((category) => category.id === budget.category_id))
+    .filter((budget) => {
+      const key = `${budget.category_id}-${budget.month}`;
+      if (budgetKeys.has(key)) return false;
+      budgetKeys.add(key);
+      return true;
+    });
+
+  const walletByName = new Map<string, Wallet>();
+  data.wallets.forEach((wallet) => {
+    const key = normalizeWalletName(wallet.name);
+    if (!walletByName.has(key)) walletByName.set(key, wallet);
+  });
+  const wallets = Array.from(walletByName.values());
+  const fallbackWalletId = wallets[0]?.id ?? null;
+  const walletIds = new Set(wallets.map((wallet) => wallet.id));
+
+  return {
+    ...data,
+    categories,
+    wallets,
+    transactions: transactions.map((transaction) => ({
+      ...transaction,
+      wallet_id: transaction.wallet_id && walletIds.has(transaction.wallet_id) ? transaction.wallet_id : fallbackWalletId,
+    })),
+    budgets,
+  };
+};
+
 const loadLocalData = (): LocalData => {
   const fallback = createDefaultLocalData();
   try {
     const raw = window.localStorage.getItem(LOCAL_KEY);
     if (!raw) return fallback;
     const parsed = JSON.parse(raw) as Partial<LocalData>;
-    return {
+    return normalizeData({
       categories: parsed.categories?.length ? parsed.categories : fallback.categories,
       wallets: parsed.wallets?.length ? parsed.wallets : fallback.wallets,
       transactions: parsed.transactions ?? [],
       budgets: parsed.budgets ?? [],
-    };
+    });
   } catch {
     return fallback;
   }
@@ -79,7 +149,7 @@ const hasSupabaseEnv = Boolean(
     supabaseAnonKey !== 'your-anon-key',
 );
 
-export function useFinanceData() {
+export function useFinanceData(selectedMonth = currentMonthKey()) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -108,13 +178,15 @@ export function useFinanceData() {
   );
 
   const seedDefaults = useCallback(async () => {
-    const [{ count: categoryCount }, { count: walletCount }] = await Promise.all([
-      supabase.from('categories').select('*', { count: 'exact', head: true }),
+    const [categoryRes, { count: walletCount }] = await Promise.all([
+      supabase.from('categories').select('*'),
       supabase.from('wallets').select('*', { count: 'exact', head: true }),
     ]);
 
-    if (!categoryCount) {
-      await supabase.from('categories').insert(defaultCategories);
+    const existingNames = new Set(((categoryRes.data ?? []) as Category[]).map((category) => normalizeCategoryName(category.name)));
+    const missingCategories = defaultCategories.filter((category) => !existingNames.has(normalizeCategoryName(category.name)));
+    if (missingCategories.length) {
+      await supabase.from('categories').insert(missingCategories);
     }
     if (!walletCount) {
       await supabase.from('wallets').insert(defaultWallets);
@@ -146,10 +218,19 @@ export function useFinanceData() {
       const firstError = categoryRes.error || walletRes.error || transactionRes.error || budgetRes.error;
       if (firstError) throw firstError;
 
-      setCategories((categoryRes.data ?? []) as Category[]);
-      setWallets((walletRes.data ?? []) as Wallet[]);
-      setTransactions((transactionRes.data ?? []) as Transaction[]);
-      setBudgets((budgetRes.data ?? []) as Budget[]);
+      const normalized = hydrateRelations(
+        normalizeData({
+          categories: (categoryRes.data ?? []) as Category[],
+          wallets: (walletRes.data ?? []) as Wallet[],
+          transactions: (transactionRes.data ?? []) as Transaction[],
+          budgets: (budgetRes.data ?? []) as Budget[],
+        }),
+      );
+
+      setCategories(normalized.categories);
+      setWallets(normalized.wallets);
+      setTransactions(normalized.transactions);
+      setBudgets(normalized.budgets);
       setLocalMode(false);
     } catch (err) {
       console.warn('Supabase unavailable, using local storage fallback.', err);
@@ -253,6 +334,30 @@ export function useFinanceData() {
     await refresh();
   };
 
+  const resetCategories = async () => {
+    if (localMode) {
+      updateLocal((data) => normalizeData({ ...data, categories: createDefaultLocalData().categories }));
+      return;
+    }
+
+    const categoryDelete = await supabase.from('categories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (categoryDelete.error) throw categoryDelete.error;
+    const categoryInsert = await supabase.from('categories').insert(defaultCategories);
+    if (categoryInsert.error) throw categoryInsert.error;
+    await refresh();
+  };
+
+  const deleteCategory = async (id: string) => {
+    if (localMode) {
+      updateLocal((data) => normalizeData({ ...data, categories: data.categories.filter((category) => category.id !== id) }));
+      return;
+    }
+
+    const { error: deleteError } = await supabase.from('categories').delete().eq('id', id);
+    if (deleteError) throw deleteError;
+    await refresh();
+  };
+
   const addWallet = async (input: Pick<Wallet, 'name' | 'balance'>) => {
     if (localMode) {
       updateLocal((data) => ({
@@ -267,8 +372,50 @@ export function useFinanceData() {
     await refresh();
   };
 
+  const deleteWallet = async (id: string) => {
+    if (localMode) {
+      updateLocal((data) => ({
+        ...data,
+        wallets: data.wallets.filter((wallet) => wallet.id !== id),
+        transactions: data.transactions.map((transaction) => (transaction.wallet_id === id ? { ...transaction, wallet_id: null } : transaction)),
+      }));
+      return;
+    }
+
+    const { error: deleteError } = await supabase.from('wallets').delete().eq('id', id);
+    if (deleteError) throw deleteError;
+    await refresh();
+  };
+
+  const hardReset = async () => {
+    const defaults = createDefaultLocalData();
+    saveLocalData(defaults);
+    applyData(defaults);
+
+    if (!hasSupabaseEnv || localMode) {
+      setLocalMode(true);
+      setError(null);
+      return;
+    }
+
+    const budgetDelete = await supabase.from('budgets').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    const transactionDelete = await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    const categoryDelete = await supabase.from('categories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    const walletDelete = await supabase.from('wallets').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    const firstError = budgetDelete.error || transactionDelete.error || categoryDelete.error || walletDelete.error;
+    if (firstError) throw firstError;
+
+    const [categoryInsert, walletInsert] = await Promise.all([
+      supabase.from('categories').insert(defaultCategories),
+      supabase.from('wallets').insert(defaultWallets),
+    ]);
+    const insertError = categoryInsert.error || walletInsert.error;
+    if (insertError) throw insertError;
+    await refresh();
+  };
+
   const summary = useMemo(() => {
-    const month = currentMonthKey();
+    const month = selectedMonth;
     const monthTransactions = transactions.filter((item) => item.transaction_date.startsWith(month));
     const todayTransactions = transactions.filter((item) => item.transaction_date === todayKey());
     const income = monthTransactions.filter((item) => item.type === 'income').reduce((sum, item) => sum + Number(item.amount), 0);
@@ -292,7 +439,7 @@ export function useFinanceData() {
       todayExpense,
       biggerSpender: biggerSpender ? { name: biggerSpender[0], amount: biggerSpender[1] } : null,
     };
-  }, [transactions]);
+  }, [selectedMonth, transactions]);
 
   return {
     categories,
@@ -310,5 +457,9 @@ export function useFinanceData() {
     upsertBudget,
     addCategory,
     addWallet,
+    resetCategories,
+    deleteCategory,
+    deleteWallet,
+    hardReset,
   };
 }

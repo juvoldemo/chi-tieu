@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { CategoryIcon } from '../components/CategoryIcon';
 import { EmptyState } from '../components/EmptyState';
@@ -11,15 +11,20 @@ interface BudgetsProps {
   budgets: Budget[];
   categories: Category[];
   transactions: Transaction[];
+  selectedMonth: string;
   onSave: (input: BudgetInput) => Promise<void>;
 }
 
-export function Budgets({ budgets, categories, transactions, onSave }: BudgetsProps) {
-  const [month, setMonth] = useState(currentMonthKey());
+export function Budgets({ budgets, categories, transactions, selectedMonth, onSave }: BudgetsProps) {
+  const [month, setMonth] = useState(selectedMonth || currentMonthKey());
   const expenseCategories = categories.filter((item) => item.type === 'expense');
   const [categoryId, setCategoryId] = useState(expenseCategories[0]?.id ?? '');
   const [amount, setAmount] = useState('');
   const visibleBudgets = budgets.filter((item) => item.month === month);
+
+  useEffect(() => {
+    setMonth(selectedMonth);
+  }, [selectedMonth]);
 
   const spentFor = (categoryIdValue: string) =>
     transactions
@@ -28,11 +33,6 @@ export function Budgets({ budgets, categories, transactions, onSave }: BudgetsPr
 
   return (
     <div className="page-enter space-y-4">
-      <div>
-        <p className="text-sm font-medium text-ink/70">Kiểm soát</p>
-        <h1 className="text-2xl font-semibold text-ink">Ngân sách</h1>
-      </div>
-
       <GlassCard strong className="space-y-3 p-4">
         <div className="grid grid-cols-2 gap-3">
           <input className="h-12 rounded-2xl border border-white/70 bg-white/70 px-4 text-sm text-ink" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
