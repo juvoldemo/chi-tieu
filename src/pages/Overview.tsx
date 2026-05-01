@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, BarChart3, PiggyBank, TrendingUp } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, BarChart3, Cake, CalendarDays, Gem, Heart, PiggyBank, TrendingUp } from 'lucide-react';
 import { CategoryIcon } from '../components/CategoryIcon';
 import { EmptyState } from '../components/EmptyState';
 import { GlassCard } from '../components/GlassCard';
@@ -20,6 +20,7 @@ interface OverviewProps {
 }
 
 export function Overview({ summary, categories, transactions, month }: OverviewProps) {
+  const nextSpecialDay = getNextSpecialDay();
   const categoryTotals = categories
     .filter((category) => category.type === 'expense')
     .map((category) => ({
@@ -50,6 +51,8 @@ export function Overview({ summary, categories, transactions, month }: OverviewP
 
   return (
     <div className="page-enter space-y-4">
+      <SpecialDayCard event={nextSpecialDay} />
+
       <div className="grid grid-cols-2 gap-3">
         <MetricCard title="Thu tháng này" value={formatCurrency(summary.income)} icon={<ArrowUpRight size={18} />} tone="text-emerald-700" />
         <MetricCard title="Chi tháng này" value={formatCurrency(summary.expense)} icon={<ArrowDownRight size={18} />} tone="text-rose-600" />
@@ -154,6 +157,103 @@ export function Overview({ summary, categories, transactions, month }: OverviewP
       </GlassCard>
     </div>
   );
+}
+
+interface SpecialDay {
+  name: string;
+  shortName: string;
+  icon: SpecialDayIcon;
+  dateLabel: string;
+  daysLeft: number;
+  targetYear: number;
+}
+
+type SpecialDayIcon = 'birthday' | 'love' | 'wedding';
+
+const specialDays = [
+  { name: 'Sinh nhật Bé Bông', shortName: 'Bé Bông', icon: 'birthday' as const, day: 10, month: 4 },
+  { name: 'Sinh nhật anh Dũ', shortName: 'Anh Dũ', icon: 'birthday' as const, day: 1, month: 7 },
+  { name: 'Kỷ niệm yêu nhau', shortName: 'Yêu nhau', icon: 'love' as const, day: 21, month: 8 },
+  { name: 'Kỷ niệm ngày cưới', shortName: 'Ngày cưới', icon: 'wedding' as const, day: 28, month: 9 },
+];
+
+function getNextSpecialDay(): SpecialDay {
+  const today = startOfDay(new Date());
+  const thisYear = today.getFullYear();
+  const events = specialDays.map((event) => {
+    let targetDate = new Date(thisYear, event.month - 1, event.day);
+
+    if (targetDate < today) {
+      targetDate = new Date(thisYear + 1, event.month - 1, event.day);
+    }
+
+    return {
+      ...event,
+      date: targetDate,
+      daysLeft: Math.round((targetDate.getTime() - today.getTime()) / 86400000),
+    };
+  });
+
+  const nextEvent = events.sort((a, b) => a.daysLeft - b.daysLeft)[0];
+
+  return {
+    name: nextEvent.name,
+    shortName: nextEvent.shortName,
+    icon: nextEvent.icon,
+    dateLabel: `${String(nextEvent.day).padStart(2, '0')}/${String(nextEvent.month).padStart(2, '0')}`,
+    daysLeft: nextEvent.daysLeft,
+    targetYear: nextEvent.date.getFullYear(),
+  };
+}
+
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function SpecialDayCard({ event }: { event: SpecialDay }) {
+  const isToday = event.daysLeft === 0;
+
+  return (
+    <GlassCard strong className="px-3.5 py-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[18px] bg-gradient-to-br from-[#fff8d8] to-[#f4bc24] text-[#9a6500] shadow-soft">
+          <SpecialDayIcon icon={event.icon} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1.5 flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/62 px-2.5 py-1 text-[11px] font-semibold leading-none text-ink/70">
+              <CalendarDays size={12} />
+              {event.dateLabel}
+            </span>
+            <span className="rounded-full bg-[#b77905]/10 px-2.5 py-1 text-[11px] font-semibold leading-none text-[#8a5a00]">{event.targetYear}</span>
+          </div>
+          <p className="line-clamp-2 text-[15px] font-semibold leading-snug text-ink">{isToday ? `Hôm nay là ${event.name}` : event.name}</p>
+        </div>
+        <div className="grid h-[58px] w-[58px] shrink-0 place-items-center rounded-full border border-white/85 bg-white/70 text-center shadow-soft">
+          {isToday ? (
+            <span className="text-xs font-semibold leading-tight text-ink">Hôm nay</span>
+          ) : (
+            <span className="leading-none">
+              <span className="block text-xl font-semibold tracking-normal text-ink">{event.daysLeft}</span>
+              <span className="mt-0.5 block text-[11px] font-medium leading-none text-ink/62">ngày</span>
+            </span>
+          )}
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
+
+function SpecialDayIcon({ icon }: { icon: SpecialDayIcon }) {
+  if (icon === 'birthday') {
+    return <Cake size={20} strokeWidth={2} />;
+  }
+
+  if (icon === 'wedding') {
+    return <Gem size={20} strokeWidth={2} />;
+  }
+
+  return <Heart size={19} fill="currentColor" strokeWidth={1.8} />;
 }
 
 function MetricCard({ title, value, icon, tone }: { title: string; value: string; icon: React.ReactNode; tone: string }) {
